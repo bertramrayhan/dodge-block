@@ -29,7 +29,7 @@ obstacley_change = 4
 for _ in range(obstacles):
   obstacle_sizes.append(40)
   obstaclexs.append(random.randint(55, 662))
-  obstacleys.append(random.randint(-120, -50))
+  obstacleys.append(random.randint(-200, -50))
 
 def obstacle_move(obstaclex, obstacley, obstacle_size):
   pygame.draw.rect(screen, (0, 255, 0), (obstaclex, obstacley, obstacle_size, obstacle_size))
