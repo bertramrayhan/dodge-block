@@ -16,15 +16,22 @@ player_size = 30
 playerx = WIDTH / 2 - player_size//2
 playery = 400
 playerx_change = 0
-def player():
+def player_move():
   pygame.draw.rect(screen, (255, 0, 0), (playerx, playery, player_size, player_size))
 
 #obstacle
-obstacle_size = 40
-obstaclex = random.randint(55, 662)
-obstacley = -50
+obstacle_sizes = []
+obstaclexs = []
+obstacleys = []
+obstacles = 3
 obstacley_change = 4
-def obstacle():
+
+for _ in range(obstacles):
+  obstacle_sizes.append(40)
+  obstaclexs.append(random.randint(55, 662))
+  obstacleys.append(random.randint(-120, -50))
+
+def obstacle_move(obstaclex, obstacley, obstacle_size):
   pygame.draw.rect(screen, (0, 255, 0), (obstaclex, obstacley, obstacle_size, obstacle_size))
 
 #score
@@ -35,8 +42,8 @@ font = pygame.font.Font(font_path, score_size)
 scorex = 0
 scorey= 0
 def score():
-  score = font.render("Score : " + str(score_value), True, "brown")
-  screen.blit(score, (scorex, scorey))
+  score_text = font.render("Score : " + str(score_value), True, "brown")
+  screen.blit(score_text, (scorex, scorey))
 
 # Main game loop
 running = True
@@ -44,9 +51,20 @@ while running:
     # Draw to the screen
     screen.fill((0, 0, 255))
     # Draw other game elements here
-    player()
-    obstacle()
+    player_move()
     score()
+    for obstacle in range(obstacles):
+      
+      obstacleys[obstacle] += obstacley_change
+      
+    # if obstacle already at the bottom
+      if obstacleys[obstacle] >= 530:
+        score_value += 1
+        obstacleys[obstacle] = -50
+        obstaclexs[obstacle] = random.randint(55,662)
+
+      obstacle_move(obstaclexs[obstacle], obstacleys[obstacle], obstacle_sizes[obstacle])
+
     # Handle events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -64,7 +82,6 @@ while running:
 
     # Update game logic
     playerx += playerx_change
-    obstacley += obstacley_change
 
     # if player hit wall
     if playerx >= 672:
@@ -72,21 +89,17 @@ while running:
     elif playerx <= 0:
       playerx = 0
 
-    # if obstacle already at the bottom
-    if obstacley >= 530:
-      score_value += 1
-      obstacley = -50
-      obstaclex = random.randint(55,662)
-
     # collision
     player_rect = pygame.Rect(playerx, playery, player_size, player_size)
-    obstacle_rect = pygame.Rect(obstaclex, obstacley, obstacle_size, obstacle_size)
-    if player_rect.colliderect(obstacle_rect):
-      score_size = 60
-      scorex = (WIDTH / 2 - score_size//2) - 50
-      scorey = HEIGHT / 2 - score_size//2 
-      obstacley = -60
-      obstacley_change = 0
+    for obstacle in range(obstacles):
+        obstacle_rect = pygame.Rect(obstaclexs[obstacle], obstacleys[obstacle], obstacle_sizes[obstacle], obstacle_sizes[obstacle])
+        if player_rect.colliderect(obstacle_rect):
+            score_size = 60
+            scorex = (WIDTH // 2 - score_size // 2) - 50
+            scorey = HEIGHT // 2 - score_size // 2
+            for obstacle in range(obstacles):
+              obstacleys[obstacle] = -60
+            obstacley_change = 0
       
     # Update the display
     pygame.display.update()
